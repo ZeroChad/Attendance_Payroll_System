@@ -10,23 +10,63 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from datetime import timedelta
+from dotenv import load_dotenv, find_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ROOT_DIR = path(__file__).resolve().parent.parent.parent
 
+load_dotenv(find_dotenv())
+
+def get_secret(secret_name):
+    secret_value = os.getenv(secret_name)
+
+    if secret_value is None:
+        raise ValueError(f"Secret {secret_name} is not Found.")
+    else:
+        if secret_value == "True":
+            secret_value = True
+        elif secret_value == "False":
+            secret_value = False
+        return secret_value
+    
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-lj+r*lv*^r%x$^@_g^$osgq%6$go!(7)mu*z64oa9eo(e4am^0"
+SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_secret("DEBUG")
+
+#URL Prefixes
+USE_HTTPS = get_secret("USE_HTTPS")
+USE_SCHEME = "https://" if USE_HTTPS else "http://"
+#Building Backend URL"
+BACKEND_ADDRESS = get_secret("BACKEND_ADDRESS")
+BACKEND_PORT = get_secret("BACKEND_PORT")
+#Building Frontend URL
+FRONTEND_ADDRESS = get_secret("FRONTEND_ADDRESS")
+FRONTEND_PORT = get_secret("FRONTEND_PORT")
+#Full URL
+FRONTEND_URL = f"{USE_SCHEME}://{FRONTEND_ADDRESS}"
+BACKEND_URL = f"{USE_SCHEME}://{BACKEND_ADDRESS}"
+#for Emails
+DOMAIN = f"{FRONTEND_ADDRESS}:{FRONTEND_PORT}/#"
+
+if not USE_HTTPS:
+    FRONTEND_URL += f":{FRONTEND_PORT}"
+    BACKEND_URL += f":{BACKEND_PORT}"
 
 ALLOWED_HOSTS = []
-
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
+    BACKEND_URL,
+]
 
 # Application definition
 
@@ -37,11 +77,72 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    #Third party apps
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "djoser",
+    "drf_spectacular",
+
+    #Local apps
+    "accounts",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+    ),
+    "DEFAULT_SCHEMA_CLASS": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "user": "360/min",
+        "anon": "60/min",
+    },
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Attendance Management API",
+    "DESCRIPTION": "API for managing attendance records",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
+
+DJOSER = {
+    "SEND ACTIVATION EMAIL": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "PASSWORD_RESET_CONFIRM_URL": "reset_password/confirm/{uid}/{token}/",
+    "ACTIVATION_URL": "activate/{uid}/{token}/",
+    "SERIALIZERS": {
+        "user_create": "accounts.serializers.CustomUserCreateSerializer",
+        "user": "accounts.serializers.CustomUserSerializer",
+        "current_user": "accounts.Customserializers.CustomUserSerializer",
+    },
+    "PERMISSIONS": {
+        "username_reset": ["rest_framework.permissions.IsAdminUser"],
+        "username_reset_confirm": ["rest_framework.permissions.IsAdminUser"],
+        "set_username": ["rest_framework.permissions.IsAdminUser"],
+        "set_password":["rest_framework.permissions.IsAdminUser"],
+    },
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -98,13 +199,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_HOST = get_secret("EMAIL_HOST")
+EMAIL
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = get_secret("TIME_ZONE")
 
 USE_I18N = True
 
