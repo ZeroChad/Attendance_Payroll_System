@@ -1,9 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbtractUser
+from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now, localdate
 from datetime import datetime, date, time , timedelta
 
-class CustomUser(AbtractUser):
+class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
