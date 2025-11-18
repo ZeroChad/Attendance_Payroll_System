@@ -93,7 +93,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
     ),
-    "DEFAULT_SCHEMA_CLASS": (
+    "DEFAULT_SCHEMA_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
     "DEFAULT_THROTTLE_CLASSES": (
@@ -121,14 +121,14 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
-    "SEND ACTIVATION EMAIL": True,
+    "SEND_ACTIVATION_EMAIL": True,
     "SEND_CONFIRMATION_EMAIL": True,
     "PASSWORD_RESET_CONFIRM_URL": "reset_password/confirm/{uid}/{token}/",
     "ACTIVATION_URL": "activate/{uid}/{token}/",
     "SERIALIZERS": {
         "user_create": "accounts.serializers.CustomUserCreateSerializer",
         "user": "accounts.serializers.CustomUserSerializer",
-        "current_user": "accounts.Customserializers.CustomUserSerializer",
+        "current_user": "accounts.serializers.CustomUserSerializer",
     },
     "PERMISSIONS": {
         "username_reset": ["rest_framework.permissions.IsAdminUser"],
@@ -204,7 +204,7 @@ EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = get_secret("EMAIL_USE_TLS")
 EMAIL_ADDRESS = get_secret("EMAIL_ADDRESS")
-DEFAULT_AUTO_FIELD = "accounts.CustomUser"
+AUTH_USER_FIELD = "accounts.CustomUser"
 
 MEDIA_URL = f"{BACKEND_URL}/api/v1/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
