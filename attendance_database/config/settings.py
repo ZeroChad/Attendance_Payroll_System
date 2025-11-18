@@ -108,8 +108,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Attendance Management API",
-    "DESCRIPTION": "API for managing attendance records",
+    "TITLE": get_secret("PROJECT_NAME"),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
@@ -200,7 +199,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 EMAIL_HOST = get_secret("EMAIL_HOST")
-EMAIL
+EMAIL_PORT = get_secret("EMAIL_PORT")
+EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = get_secret("EMAIL_USE_TLS")
+EMAIL_ADDRESS = get_secret("EMAIL_ADDRESS")
+DEFAULT_AUTO_FIELD = "accounts.CustomUser"
+
+MEDIA_URL = f"{BACKEND_URL}/api/v1/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
